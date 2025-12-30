@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Monopoly GO Dice Generator</title>
+    <meta name="description" content="Get free dice for Monopoly GO">
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/8082/8082838.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+
+        /* Monopoly Board Background */
+        .monopoly-board-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(226, 6, 19, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.1) 0%, transparent 50%);
+            opacity: 0.6;
+        }
+
+        /* Animated Elements Container */
+        .animated-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        /* Board Squares Animation */
+        .board-square {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #e20613, #ff4757);
+            border: 3px solid #ffd700;
+            border-radius: 10px;
+            opacity: 0.3;
+            transform: rotate(45deg);
+            animation: squarePulse 4s ease-in-out infinite;
+        }
+
+        @keyframes squarePulse {
+            0%, 100% { transform: rotate(45deg) scale(1); opacity: 0.2; }
+            50% { transform: rotate(45deg) scale(1.1); opacity: 0.3; }
+        }
+
+        /* Moving Tokens */
+        .token {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+            animation: tokenMove 20s linear infinite;
+        }
+
+        .token.car {
+            background: linear-gradient(135deg, #e20613, #ff6b6b);
+        }
+
+        .token.dog {
+            background: linear-gradient(135deg, #ff9f43, #ffd700);
+        }
+
+        .token.hat {
+            background: linear-gradient(135deg, #2ed573, #7bed9f);
+        }
+
+        .token.ship {
+            background: linear-gradient(135deg, #3742fa, #5352ed);
+        }
+
+        @keyframes tokenMove {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(calc(100vw - 100px), calc(100vh - 100px)) rotate(90deg);
+            }
+            50% {
+                transform: translate(calc(100vw - 100px), 0) rotate(180deg);
+            }
+            75% {
+                transform: translate(0, calc(100vh - 100px)) rotate(270deg);
+            }
+            100% {
+                transform: translate(0, 0) rotate(360deg);
+            }
+        }
+
+        /* Flipping Cards */
+        .card {
+            position: absolute;
+            width: 60px;
+            height: 80px;
+            background: linear-gradient(135deg, #ffffff, #f1f2f6);
+            border-radius: 8px;
+            transform-style: preserve-3d;
+            animation: cardFlip 6s ease-in-out infinite;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .card::before {
+            content: '?';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: #e20613;
+        }
+
+        @keyframes cardFlip {
+            0%, 100% { transform: rotateY(0deg); }
+            50% { transform: rotateY(180deg); }
+        }
+
+        /* Floating Money */
+        .money {
+            position: absolute;
+            font-size: 32px;
+            font-weight: bold;
+            color: #2ed573;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: floatMoney 8s ease-in-out infinite;
+            opacity: 0.7;
+        }
+
+        @keyframes floatMoney {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.5; }
+            50% { transform: translateY(-50px) rotate(180deg); opacity: 0.8; }
+        }
+
+        /* Dice Animation */
+        .floating-dice {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #e20613;
+            animation: diceRoll 10s linear infinite;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes diceRoll {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(100px, 50px) rotate(90deg); }
+            50% { transform: translate(200px, -50px) rotate(180deg); }
+            75% { transform: translate(100px, -100px) rotate(270deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+
+        /* Property Cards */
+        .property {
+            position: absolute;
+            width: 70px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--color1), var(--color2));
+            border-radius: 5px;
+            transform: rotate(var(--rotate));
+            animation: propertyFloat 12s ease-in-out infinite;
+            opacity: 0.4;
+        }
+
+        @keyframes propertyFloat {
+            0%, 100% { transform: translateY(0) rotate(var(--rotate)); }
+            50% { transform: translateY(-30px) rotate(calc(var(--rotate) + 10deg)); }
+        }
+
+        /* Main Container */
+        .container {
+            width: 100%;
+            max-width: 500px;
+            perspective: 1000px;
+            z-index: 10;
+        }
+
+        /* Main Card Styles */
+        .card-ui {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 25px;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.1),
+                0 0 100px rgba(226, 6, 19, 0.3);
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid rgba(226, 6, 19, 0.1);
+        }
+
+        .card-ui::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                45deg,
+                transparent 30%,
+                rgba(226, 6, 19, 0.05) 50%,
+                transparent 70%
+            );
+            animation: shine 3s infinite linear;
+            z-index: 1;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        /* Header Section */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            position: relative;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 20px rgba(226, 6, 19, 0.4));
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+
+        .title {
+            font-size: 2.5em;
+            font-weight: 900;
+            background: linear-gradient(45deg, #e20613, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 20px rgba(226, 6, 19, 0.2);
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        /* Input Group */
+        .input-group {
+            position: relative;
+            margin-bottom: 25px;
+            z-index: 2;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            z-index: 3;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 18px 20px 18px 55px;
+            font-size: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s ease;
+            outline: none;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(10px);
+        }
+
+        .input-field:focus {
+            border-color: #e20613;
+            box-shadow: 0 8px 25px rgba(226, 6, 19, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .input-field:focus + .input-icon {
+            transform: translateY(-50%) scale(1.1);
+            filter: drop-shadow(0 4px 8px rgba(226, 6, 19, 0.3));
+        }
+
+        /* Device Selection */
+        .device-selection {
+            margin-bottom: 25px;
+            z-index: 2;
+            position: relative;
+        }
+
+        .device-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            text-align: center;
+        }
+
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .device-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px 10px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .device-card:hover {
+            transform: translateY(-5px);
+            border-color: #e20613;
+            box-shadow: 0 15px 30px rgba(226, 6, 19, 0.2);
+        }
+
+        .device-card.selected {
+            border-color: #e20613;
+            background: linear-gradient(135deg, rgba(226, 6, 19, 0.1), rgba(255, 107, 107, 0.1));
+            box-shadow: 0 15px 35px rgba(226, 6, 19, 0.25);
+            transform: translateY(-5px) scale(1.05);
+        }
+
+        .device-icon {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            transition: all 0.3s ease;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
+        }
+
+        .device-card.selected .device-icon {
+            filter: drop-shadow(0 6px 12px rgba(226, 6, 19, 0.4));
+            transform: scale(1.1);
+        }
+
+        .device-name {
+            font-size: 0.9em;
+            font-weight: 500;
+            color: #666;
+            text-align: center;
+        }
+
+        .device-card.selected .device-name {
+            color: #e20613;
+            font-weight: 600;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            z-index: 2;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #e20613, #ff6b6b);
+            color: white;
+            box-shadow: 0 15px 35px rgba(226, 6, 19, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(226, 6, 19, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
+        }
+
+        /* Dice Selection */
+        .dice-selection {
+            margin-bottom: 25px;
+            z-index: 2;
+            position: relative;
+        }
+
+        .dice-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .dice-card {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            padding: 25px 15px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .dice-card:hover {
+            transform: translateY(-5px);
+            border-color: #e20613;
+            box-shadow: 0 20px 40px rgba(226, 6, 19, 0.2);
+        }
+
+        .dice-card.selected {
+            border-color: #e20613;
+            background: linear-gradient(135deg, rgba(226, 6, 19, 0.1), rgba(255, 107, 107, 0.1));
+            box-shadow: 0 20px 45px rgba(226, 6, 19, 0.3);
+            transform: translateY(-5px) scale(1.02);
+        }
+
+        .dice-icon {
+            width: 60px;
+            height: 60px;
+            animation: diceRotate 4s linear infinite;
+            filter: drop-shadow(0 8px 16px rgba(226, 6, 19, 0.3));
+        }
+
+        @keyframes diceRotate {
+            0% { transform: rotate(0deg) scale(1); }
+            25% { transform: rotate(90deg) scale(1.1); }
+            50% { transform: rotate(180deg) scale(1); }
+            75% { transform: rotate(270deg) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        .dice-amount {
+            font-size: 1.5em;
+            font-weight: 800;
+            color: #333;
+            text-align: center;
+        }
+
+        .dice-card.selected .dice-amount {
+            color: #e20613;
+            text-shadow: 0 2px 10px rgba(226, 6, 19, 0.3);
+        }
+
+        .dice-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: linear-gradient(45deg, #e20613, #ff6b6b);
+            color: white;
+            font-size: 0.8em;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            animation: pulse 2s infinite;
+            box-shadow: 0 4px 15px rgba(226, 6, 19, 0.3);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+        }
+
+        /* Progress Section */
+        .progress-section {
+            text-align: center;
+            margin-bottom: 30px;
+            z-index: 2;
+            position: relative;
+        }
+
+        .progress-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background: rgba(224, 224, 224, 0.5);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 25px 0;
+            position: relative;
+            backdrop-filter: blur(5px);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #e20613, #ff6b6b, #e20613);
+            background-size: 200% 100%;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            animation: progressShimmer 2s infinite linear;
+        }
+
+        @keyframes progressShimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: 0 0; }
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            margin: 20px auto;
+            position: relative;
+        }
+
+        .spinner-circle {
+            width: 100%;
+            height: 100%;
+            border: 4px solid rgba(226, 6, 19, 0.1);
+            border-top-color: #e20613;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Verification Section */
+        .verification-section {
+            text-align: center;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, rgba(248, 249, 250, 0.9), rgba(255, 255, 255, 0.9));
+            border-radius: 20px;
+            margin: 20px 0;
+            border: 2px solid rgba(226, 6, 19, 0.1);
+            position: relative;
+            overflow: hidden;
+            z-index: 2;
+            backdrop-filter: blur(20px);
+        }
+
+        .verification-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 15px;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .verification-text {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            font-size: 1em;
+        }
+
+        .user-name {
+            color: #e20613;
+            font-weight: 700;
+        }
+
+        .dice-preview {
+            font-size: 2em;
+            font-weight: 800;
+            color: #e20613;
+            margin: 20px 0;
+            text-shadow: 0 4px 20px rgba(226, 6, 19, 0.3);
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.05); }
+        }
+
+        /* Success Animation */
+        .success-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .success-animation.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .success-content {
+            text-align: center;
+            transform: scale(0.8);
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .success-animation.active .success-content {
+            transform: scale(1);
+        }
+
+        .success-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .checkmark {
+            width: 100%;
+            height: 100%;
+            fill: none;
+            stroke: #e20613;
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 480;
+            stroke-dashoffset: 480;
+            animation: draw 1.5s ease-in-out forwards 0.5s;
+        }
+
+        @keyframes draw {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .success-text {
+            font-size: 2.5em;
+            font-weight: 900;
+            background: linear-gradient(45deg, #e20613, #ff6b6b, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 20px rgba(226, 6, 19, 0.3);
+            animation: textGlow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes textGlow {
+            0% { filter: drop-shadow(0 0 10px rgba(226, 6, 19, 0.5)); }
+            100% { filter: drop-shadow(0 0 20px rgba(226, 6, 19, 0.8)); }
+        }
+
+        .success-subtext {
+            color: white;
+            font-size: 1.2em;
+            opacity: 0.8;
+            margin-bottom: 30px;
+        }
+
+        /* Error States */
+        .error-message {
+            color: #e20613;
+            font-size: 0.9em;
+            margin-top: 8px;
+            text-align: left;
+            padding-left: 20px;
+            display: none;
+            animation: shake 0.5s ease;
+        }
+
+        .input-field.error {
+            border-color: #e20613;
+            animation: shake 0.5s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* Users Online */
+        .users-online {
+            text-align: center;
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9em;
+            z-index: 2;
+            position: relative;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .online-count {
+            color: #4cd964;
+            font-weight: 600;
+        }
+
+        /* Animation Classes */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .card-ui {
+                padding: 20px;
+                border-radius: 20px;
+            }
+            
+            .title {
+                font-size: 2em;
+            }
+            
+            .dice-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .device-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .btn {
+                padding: 16px;
+                font-size: 1em;
+            }
+            
+            .verification-title {
+                font-size: 1.5em;
+            }
+            
+            /* Reduce animation elements on mobile */
+            .token, .card, .money, .floating-dice, .property {
+                display: none;
+            }
+            
+            .board-square {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        /* Performance Optimizations */
+        @media (prefers-reduced-motion: reduce) {
+            *, ::before, ::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Interactive Effects */
+        .interactive-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(226, 6, 19, 0.2), transparent 70%);
+            transform: scale(0);
+            animation: rippleEffect 1s ease-out;
+        }
+
+        @keyframes rippleEffect {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Monopoly Game Background -->
+    <div class="monopoly-board-bg"></div>
+    
+    <!-- Animated Game Elements -->
+    <div class="animated-elements" id="animatedElements"></div>
+    
+    <!-- Interactive Effects -->
+    <div class="interactive-effects" id="interactiveEffects"></div>
+    
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Main Card -->
+        <div class="card-ui" id="mainCard">
+            <!-- Step 1: User Input -->
+            <div class="step" id="step1">
+                <div class="header">
+                    <div class="logo">
+                        <img src="https://cdn-icons-png.flaticon.com/512/8082/8082838.png" alt="Monopoly GO" class="logo-img">
+                    </div>
+                    <h1 class="title">Monopoly GO</h1>
+                    <p class="subtitle">Enter your username to receive free dice rolls instantly!</p>
+                </div>
+                
+                <div class="input-group">
+                    <img src="https://cdn-icons-png.flaticon.com/512/456/456212.png" alt="User" class="input-icon">
+                    <input type="text" class="input-field" id="username" placeholder="Enter your username or ID" autocomplete="off">
+                    <div class="error-message" id="usernameError">Please enter a valid username (3-20 characters)</div>
+                </div>
+                
+                <div class="device-selection">
+                    <div class="device-title">Select Your Device</div>
+                    <div class="device-grid">
+                        <div class="device-card" data-device="android">
+                            <img src="https://cdn-icons-png.flaticon.com/512/174/174836.png" alt="Android" class="device-icon">
+                            <span class="device-name">Android</span>
+                        </div>
+                        <div class="device-card" data-device="ios">
+                            <img src="https://cdn-icons-png.flaticon.com/512/0/747.png" alt="iPhone" class="device-icon">
+                            <span class="device-name">iPhone</span>
+                        </div>
+                        <div class="device-card" data-device="windows">
+                            <img src="https://cdn-icons-png.flaticon.com/512/732/732221.png" alt="Windows" class="device-icon">
+                            <span class="device-name">Windows</span>
+                        </div>
+                    </div>
+                    <div class="error-message" id="deviceError">Please select your device</div>
+                </div>
+                
+                <button class="btn btn-primary" id="nextBtn">Next →</button>
+                
+                <div class="users-online">
+                    <span class="online-count">254</span> users online now
+                </div>
+            </div>
+            
+            <!-- Step 2: Dice Selection -->
+            <div class="step" id="step2" style="display: none;">
+                <div class="header">
+                    <h1 class="title">Choose Dice Amount</h1>
+                    <p class="subtitle">Select how many dice rolls you want to receive</p>
+                </div>
+                
+                <div class="dice-selection">
+                    <div class="dice-grid">
+                        <div class="dice-card" data-amount="35000">
+                            <img src="https://cdn-icons-png.flaticon.com/512/8082/8082838.png" alt="Dice" class="dice-icon">
+                            <div class="dice-amount">35,000</div>
+                            <div class="dice-badge">Popular</div>
+                        </div>
+                        <div class="dice-card" data-amount="75000">
+                            <img src="https://cdn-icons-png.flaticon.com/512/8082/8082838.png" alt="Dice" class="dice-icon">
+                            <div class="dice-amount">75,000</div>
+                        </div>
+                        <div class="dice-card" data-amount="200000">
+                            <img src="https://cdn-icons-png.flaticon.com/512/8082/8082838.png" alt="Dice" class="dice-icon">
+                            <div class="dice-amount">200,000</div>
+                            <div class="dice-badge">Best Value</div>
+                        </div>
+                        <div class="dice-card" data-amount="450000">
+                            <img src="https://cdn-icons-png.flaticon.com/512/8082/8082838.png" alt="Dice" class="dice-icon">
+                            <div class="dice-amount">450,000</div>
+                            <div class="dice-badge">MAX</div>
+                        </div>
+                    </div>
+                    <div class="error-message" id="diceError">Please select dice amount</div>
+                </div>
+                
+                <button class="btn btn-primary" id="proceedBtn">Proceed</button>
+                <button class="btn" id="backBtn1" style="margin-top: 10px; background: rgba(240, 240, 240, 0.9); color: #666;">← Back</button>
+            </div>
+            
+            <!-- Step 3: Loading -->
+            <div class="step" id="step3" style="display: none;">
+                <div class="progress-section">
+                    <div class="progress-title" id="progressTitle">Processing your request...</div>
+                    
+                    <div class="loading-spinner">
+                        <div class="spinner-circle"></div>
+                    </div>
+                    
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    
+                    <div class="progress-title" id="statusText">Initializing connection...</div>
+                </div>
+            </div>
+            
+            <!-- Step 4: Verification -->
+            <div class="step" id="step4" style="display: none;">
+                <div class="verification-section">
+                    <h2 class="verification-title">Verification Required</h2>
+                    <p class="verification-text">
+                        Hello <span class="user-name" id="displayName"></span>! Our system needs to verify you're not a bot.
+                    </p>
+                    <p class="verification-text">
+                        Complete verification to receive your <span class="dice-preview" id="diceAmountPreview"></span> dice rolls instantly.
+                    </p>
+                    
+                    <div class="dice-preview" id="finalDiceAmount"></div>
+                    
+                    <button class="btn btn-primary" id="verifyBtn">Verify Now</button>
+                    <button class="btn" id="backBtn2" style="margin-top: 10px; background: rgba(240, 240, 240, 0.9); color: #666;">← Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Success Animation -->
+    <div class="success-animation" id="successAnimation">
+        <div class="success-content">
+            <div class="success-icon">
+                <svg class="checkmark" viewBox="0 0 52 52">
+                    <circle cx="26" cy="26" r="25" fill="none"/>
+                    <path d="M14.1 27.2l7.1 7.2 16.7-16.8" stroke="#e20613" stroke-width="4"/>
+                </svg>
+            </div>
+            <div class="success-text">MONOPOLY GO</div>
+            <div class="success-subtext">Dice successfully generated!</div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize variables
+        let currentStep = 1;
+        let userData = {
+            username: '',
+            device: '',
+            diceAmount: ''
+        };
+
+        // DOM Elements
+        const steps = document.querySelectorAll('.step');
+        const usernameInput = document.getElementById('username');
+        const usernameError = document.getElementById('usernameError');
+        const deviceCards = document.querySelectorAll('.device-card');
+        const deviceError = document.getElementById('deviceError');
+        const diceCards = document.querySelectorAll('.dice-card');
+        const diceError = document.getElementById('diceError');
+        const progressBar = document.getElementById('progressBar');
+        const progressTitle = document.getElementById('progressTitle');
+        const statusText = document.getElementById('statusText');
+        const displayName = document.getElementById('displayName');
+        const diceAmountPreview = document.getElementById('diceAmountPreview');
+        const finalDiceAmount = document.getElementById('finalDiceAmount');
+        const successAnimation = document.getElementById('successAnimation');
+        const animatedElements = document.getElementById('animatedElements');
+        const interactiveEffects = document.getElementById('interactiveEffects');
+
+        // Create Monopoly Game Background Elements
+        function createGameElements() {
+            const isMobile = window.innerWidth <= 480;
+            
+            // Clear existing elements
+            animatedElements.innerHTML = '';
+            
+            // Board Squares
+            if (!isMobile) {
+                for (let i = 0; i < 15; i++) {
+                    const square = document.createElement('div');
+                    square.className = 'board-square';
+                    square.style.left = `${Math.random() * 100}%`;
+                    square.style.top = `${Math.random() * 100}%`;
+                    square.style.animationDelay = `${Math.random() * 4}s`;
+                    square.style.width = `${Math.random() * 60 + 60}px`;
+                    square.style.height = square.style.width;
+                    animatedElements.appendChild(square);
+                }
+            }
+            
+            // Moving Tokens
+            if (!isMobile) {
+                const tokenTypes = ['car', 'dog', 'hat', 'ship'];
+                tokenTypes.forEach((type, index) => {
+                    const token = document.createElement('div');
+                    token.className = `token ${type}`;
+                    token.style.left = `${Math.random() * 100}%`;
+                    token.style.top = `${Math.random() * 100}%`;
+                    token.style.animationDelay = `${Math.random() * 5}s`;
+                    token.style.animationDuration = `${Math.random() * 10 + 15}s`;
+                    animatedElements.appendChild(token);
+                });
+            }
+            
+            // Flipping Cards
+            if (!isMobile) {
+                for (let i = 0; i < 4; i++) {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.style.left = `${Math.random() * 100}%`;
+                    card.style.top = `${Math.random() * 100}%`;
+                    card.style.animationDelay = `${Math.random() * 3}s`;
+                    card.style.animationDuration = `${Math.random() * 4 + 4}s`;
+                    animatedElements.appendChild(card);
+                }
+            }
+            
+            // Floating Money
+            if (!isMobile) {
+                const moneySymbols = ['$', '€', '£', '¥'];
+                for (let i = 0; i < 8; i++) {
+                    const money = document.createElement('div');
+                    money.className = 'money';
+                    money.textContent = moneySymbols[Math.floor(Math.random() * moneySymbols.length)];
+                    money.style.left = `${Math.random() * 100}%`;
+                    money.style.top = `${Math.random() * 100}%`;
+                    money.style.animationDelay = `${Math.random() * 4}s`;
+                    money.style.fontSize = `${Math.random() * 20 + 24}px`;
+                    money.style.color = i % 2 === 0 ? '#2ed573' : '#ffd700';
+                    animatedElements.appendChild(money);
+                }
+            }
+            
+            // Floating Dice
+            if (!isMobile) {
+                for (let i = 0; i < 3; i++) {
+                    const dice = document.createElement('div');
+                    dice.className = 'floating-dice';
+                    dice.textContent = Math.floor(Math.random() * 6) + 1;
+                    dice.style.left = `${Math.random() * 100}%`;
+                    dice.style.top = `${Math.random() * 100}%`;
+                    dice.style.animationDelay = `${Math.random() * 5}s`;
+                    dice.style.animationDuration = `${Math.random() * 8 + 8}s`;
+                    animatedElements.appendChild(dice);
+                }
+            }
+            
+            // Property Cards
+            if (!isMobile) {
+                const properties = [
+                    { color1: '#ff6b6b', color2: '#ff4757' },
+                    { color1: '#2ed573', color2: '#7bed9f' },
+                    { color1: '#3742fa', color2: '#5352ed' },
+                    { color1: '#ffa502', color2: '#ffbe76' },
+                    { color1: '#a4b0be', color2: '#dfe4ea' }
+                ];
+                
+                for (let i = 0; i < 6; i++) {
+                    const property = document.createElement('div');
+                    property.className = 'property';
+                    const prop = properties[Math.floor(Math.random() * properties.length)];
+                    property.style.setProperty('--color1', prop.color1);
+                    property.style.setProperty('--color2', prop.color2);
+                    property.style.setProperty('--rotate', `${Math.random() * 360}deg`);
+                    property.style.left = `${Math.random() * 100}%`;
+                    property.style.top = `${Math.random() * 100}%`;
+                    property.style.animationDelay = `${Math.random() * 6}s`;
+                    property.style.animationDuration = `${Math.random() * 8 + 8}s`;
+                    animatedElements.appendChild(property);
+                }
+            }
+        }
+
+        // Initialize device selection
+        deviceCards.forEach(card => {
+            card.addEventListener('click', () => {
+                // Remove selected class from all cards
+                deviceCards.forEach(c => c.classList.remove('selected'));
+                // Add selected class to clicked card
+                card.classList.add('selected');
+                // Store selected device
+                userData.device = card.dataset.device;
+                // Hide error if shown
+                deviceError.style.display = 'none';
+                
+                // Create ripple effect
+                createRippleEffect(card);
+            });
+        });
+
+        // Initialize dice selection
+        diceCards.forEach(card => {
+            card.addEventListener('click', () => {
+                // Remove selected class from all cards
+                diceCards.forEach(c => c.classList.remove('selected'));
+                // Add selected class to clicked card
+                card.classList.add('selected');
+                // Store selected dice amount
+                userData.diceAmount = card.dataset.amount;
+                // Hide error if shown
+                diceError.style.display = 'none';
+                
+                // Create ripple effect
+                createRippleEffect(card);
+                
+                // Add dice roll sound effect simulation
+                const diceIcon = card.querySelector('.dice-icon');
+                diceIcon.style.animation = 'none';
+                setTimeout(() => {
+                    diceIcon.style.animation = 'diceRotate 4s linear infinite';
+                }, 10);
+            });
+        });
+
+        // Create ripple effect
+        function createRippleEffect(element) {
+            const rect = element.getBoundingClientRect();
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple';
+            ripple.style.width = ripple.style.height = `${Math.max(rect.width, rect.height)}px`;
+            ripple.style.left = `${rect.left + rect.width / 2}px`;
+            ripple.style.top = `${rect.top + rect.height / 2}px`;
+            
+            interactiveEffects.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 1000);
+        }
+
+        // Next button handler
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            // Validate username
+            const username = usernameInput.value.trim();
+            if (username.length < 3 || username.length > 20) {
+                usernameInput.classList.add('error');
+                usernameError.style.display = 'block';
+                shakeElement(usernameInput);
+                return;
+            }
+            
+            // Validate device selection
+            if (!userData.device) {
+                deviceError.style.display = 'block';
+                shakeElement(deviceCards[0]);
+                return;
+            }
+            
+            // Store username
+            userData.username = username;
+            
+            // Create ripple effect
+            createRippleEffect(document.getElementById('nextBtn'));
+            
+            // Transition to step 2
+            goToStep(2);
+        });
+
+        // Proceed button handler
+        document.getElementById('proceedBtn').addEventListener('click', () => {
+            // Validate dice selection
+            if (!userData.diceAmount) {
+                diceError.style.display = 'block';
+                shakeElement(diceCards[0]);
+                return;
+            }
+            
+            // Create ripple effect
+            createRippleEffect(document.getElementById('proceedBtn'));
+            
+            // Transition to step 3
+            goToStep(3);
+            
+            // Start loading animation
+            startLoadingAnimation();
+        });
+
+        // Verify button handler
+        document.getElementById('verifyBtn').addEventListener('click', () => {
+            // Create ripple effect
+            createRippleEffect(document.getElementById('verifyBtn'));
+            
+            // Show success animation
+            successAnimation.classList.add('active');
+            
+            // Add particle burst effect
+            createParticleBurst();
+            
+            // After 2 seconds, redirect
+            setTimeout(() => {
+                window.location.href = "https://hubverify.com/cl/?o=694e5d9225c14";
+            }, 2000);
+        });
+
+        // Back buttons
+        document.getElementById('backBtn1').addEventListener('click', () => goToStep(1));
+        document.getElementById('backBtn2').addEventListener('click', () => goToStep(2));
+
+        // Create particle burst effect
+        function createParticleBurst() {
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.style.cssText = `
+                        position: fixed;
+                        width: ${Math.random() * 10 + 5}px;
+                        height: ${Math.random() * 10 + 5}px;
+                        background: ${Math.random() > 0.5 ? '#e20613' : '#ffd700'};
+                        border-radius: 50%;
+                        pointer-events: none;
+                        z-index: 1001;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        animation: particleBurst 1s ease-out forwards;
+                    `;
+                    
+                    interactiveEffects.appendChild(particle);
+                    
+                    setTimeout(() => particle.remove(), 1000);
+                    
+                    // Add particle burst animation
+                    const style = document.createElement('style');
+                    style.textContent = `
+                        @keyframes particleBurst {
+                            0% {
+                                transform: translate(-50%, -50%) scale(1);
+                                opacity: 1;
+                            }
+                            100% {
+                                transform: translate(
+                                    ${Math.random() * 200 - 100}px,
+                                    ${Math.random() * 200 - 100}px
+                                ) scale(0);
+                                opacity: 0;
+                            }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }, i * 20);
+            }
+        }
+
+        // Function to transition between steps
+        function goToStep(step) {
+            // Create ripple effect on card
+            createRippleEffect(document.getElementById('mainCard'));
+            
+            // Hide all steps
+            steps.forEach(s => {
+                s.style.display = 'none';
+                s.style.opacity = '0';
+                s.style.transform = 'translateY(20px)';
+            });
+            
+            // Show current step
+            const currentStepElement = document.getElementById(`step${step}`);
+            currentStepElement.style.display = 'block';
+            
+            // Animate in
+            setTimeout(() => {
+                currentStepElement.style.opacity = '1';
+                currentStepElement.style.transform = 'translateY(0)';
+                currentStepElement.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+                
+                // Update display data if needed
+                if (step === 4) {
+                    displayName.textContent = userData.username;
+                    diceAmountPreview.textContent = formatNumber(userData.diceAmount);
+                    finalDiceAmount.textContent = `${formatNumber(userData.diceAmount)} Dice`;
+                }
+            }, 50);
+            
+            currentStep = step;
+        }
+
+        // Loading animation
+        function startLoadingAnimation() {
+            const steps = [
+                { text: 'Connecting to Monopoly servers...', progress: 20, delay: 800 },
+                { text: 'Validating game account...', progress: 40, delay: 1200 },
+                { text: 'Generating dice rolls...', progress: 65, delay: 1500 },
+                { text: 'Preparing delivery...', progress: 85, delay: 1000 },
+                { text: 'Ready for verification!', progress: 100, delay: 500 }
+            ];
+            
+            let totalDelay = 0;
+            
+            steps.forEach((step, index) => {
+                setTimeout(() => {
+                    progressTitle.textContent = step.text;
+                    statusText.textContent = step.text;
+                    progressBar.style.width = `${step.progress}%`;
+                    
+                    // If last step, move to verification
+                    if (index === steps.length - 1) {
+                        setTimeout(() => {
+                            goToStep(4);
+                        }, 800);
+                    }
+                }, totalDelay);
+                
+                totalDelay += step.delay;
+            });
+        }
+
+        // Utility functions
+        function shakeElement(element) {
+            element.style.animation = 'shake 0.5s ease';
+            setTimeout(() => {
+                element.style.animation = '';
+            }, 500);
+        }
+
+        function formatNumber(num) {
+            return parseInt(num).toLocaleString();
+        }
+
+        // Online users counter (simulated)
+        function updateOnlineCount() {
+            const countElement = document.querySelector('.online-count');
+            let count = parseInt(countElement.textContent);
+            const change = Math.floor(Math.random() * 11) - 5; // -5 to +5
+            count = Math.max(200, count + change);
+            countElement.textContent = count;
+        }
+
+        // Update online count every 10 seconds
+        setInterval(updateOnlineCount, 10000);
+
+        // Card hover effect
+        const card = document.getElementById('mainCard');
+        card.addEventListener('mousemove', (e) => {
+            if (window.innerWidth > 768) {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateY = (x - centerX) / 25;
+                const rotateX = (centerY - y) / 25;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            }
+        });
+
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+        });
+
+        // Initialize game elements
+        createGameElements();
+        
+        // Recreate elements on resize
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(createGameElements, 250);
+        });
+
+        // Add click effect to all buttons
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                createRippleEffect(this);
+            });
+        });
+
+        // Add parallax effect to background on mouse move
+        document.addEventListener('mousemove', (e) => {
+            if (window.innerWidth > 768) {
+                const x = (e.clientX / window.innerWidth - 0.5) * 20;
+                const y = (e.clientY / window.innerHeight - 0.5) * 20;
+                
+                animatedElements.style.transform = `translate(${x}px, ${y}px)`;
+            }
+        });
+
+        // Reset parallax on mouse leave
+        document.addEventListener('mouseleave', () => {
+            animatedElements.style.transform = 'translate(0, 0)';
+        });
+
+        // Initialize with some background animation
+        setTimeout(() => {
+            animatedElements.style.transition = 'transform 0.3s ease-out';
+        }, 1000);
+    </script>
+</body>
+</html>
